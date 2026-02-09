@@ -1,0 +1,4588 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موزع - تطبيق المحفظة الذكية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #FF6B00;
+            --primary-light: #FF8E3C;
+            --primary-dark: #E55A00;
+            --primary-gradient: linear-gradient(135deg, #FF6B00, #FF8E3C, #FFAA00);
+            --primary-gradient-light: linear-gradient(135deg, rgba(255, 107, 0, 0.1), rgba(255, 142, 60, 0.1));
+            --white: #FFFFFF;
+            --off-white: #FEFEFE;
+            --gray-light: #F8FAFC;
+            --gray: #E2E8F0;
+            --gray-medium: #94A3B8;
+            --gray-dark: #64748B;
+            --dark: #1E293B;
+            --black: #0F172A;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.1);
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --radius: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* متغيرات الوضع الليلي */
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --border-color: #E2E8F0;
+        }
+        
+        /* نمط الوضع الليلي */
+        body.dark-mode {
+            --primary: #FF8E3C;
+            --primary-light: #FFAA00;
+            --primary-dark: #FF6B00;
+            --primary-gradient: linear-gradient(135deg, #FF8E3C, #FFAA00, #FFC107);
+            --white: #1E293B;
+            --off-white: #0F172A;
+            --gray-light: #1E293B;
+            --gray: #334155;
+            --gray-medium: #64748B;
+            --gray-dark: #94A3B8;
+            --dark: #F8FAFC;
+            --black: #F1F5F9;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.3);
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.1);
+            
+            --bg-primary: #0F172A;
+            --bg-secondary: #1E293B;
+            --bg-card: #1E293B;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --border-color: #334155;
+        }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            max-width: 500px;
+            margin: 0 auto;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-color: var(--bg-primary);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: background-color 0.3s;
+        }
+        
+        /* Login Page Styles */
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+            background: var(--primary-gradient);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 25px 25px;
+            opacity: 0.3;
+            animation: moveBackground 25s linear infinite;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 60px;
+            z-index: 1;
+        }
+        
+        .login-logo {
+            font-size: 60px;
+            color: white;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            animation: pulseLogo 3s infinite;
+        }
+        
+        .login-title {
+            font-size: 42px;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .login-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+        
+        .login-form {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 28px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .form-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 30px;
+            text-align: center;
+            color: var(--black);
+        }
+        
+        .country-code {
+            display: flex;
+            align-items: center;
+            background-color: var(--off-white);
+            border-radius: var(--radius);
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid var(--gray);
+            transition: var(--transition);
+        }
+        
+        .country-code:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+        }
+        
+        .country-flag {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            font-size: 24px;
+            margin-left: 10px;
+        }
+        
+        .country-code-select {
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--black);
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            cursor: pointer;
+            width: 60px;
+        }
+        
+        .phone-input {
+            flex: 1;
+            border: none;
+            background: none;
+            font-size: 18px;
+            color: var(--black);
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            outline: none;
+            text-align: right;
+            padding: 0 10px;
+        }
+        
+        .phone-input::placeholder {
+            color: var(--gray-medium);
+        }
+        
+        .login-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 8px 25px rgba(255, 107, 0, 0.3);
+            letter-spacing: -0.3px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(255, 107, 0, 0.4);
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+            z-index: 1;
+        }
+        
+        .login-footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: var(--primary-gradient);
+            color: var(--white);
+            padding: 15px 20px 20px;
+            position: relative;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(255, 107, 0, 0.15);
+            animation: slideDown 0.6s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .app-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .logo-name {
+            font-weight: 900;
+            font-size: 36px;
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo-tagline {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            width: 100%;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: 800;
+            font-size: 28px;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo i {
+            margin-left: 12px;
+            font-size: 32px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            animation: pulseLogo 3s infinite;
+        }
+        
+        .header-icons {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .header-icons i {
+            font-size: 22px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .header-icons i:hover {
+            transform: scale(1.15);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            background-color: #FF3B30;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+            width: 100%;
+        }
+        
+        .user-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: 800;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-avatar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+            background-size: 15px 15px;
+            opacity: 0.3;
+            animation: moveBackground 20s linear infinite;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.05) rotate(5deg);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+        }
+        
+        .user-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-greeting {
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0.95;
+            margin-bottom: 4px;
+        }
+        
+        .user-name {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .user-level {
+            background-color: rgba(255, 255, 255, 0.25);
+            padding: 8px 18px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 20px;
+            animation: fadeIn 0.8s ease-out;
+            background-color: var(--bg-primary);
+        }
+        
+        /* Balance Card */
+        .balance-card {
+            background: var(--primary-gradient);
+            color: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 30px 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 30px rgba(255, 107, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: scaleIn 0.7s ease-out;
+        }
+        
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+            background-size: 25px 25px;
+            opacity: 0.3;
+            animation: moveBackground 25s linear infinite;
+        }
+        
+        .balance-label {
+            font-size: 18px;
+            font-weight: 600;
+            opacity: 0.95;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .balance-amount {
+            font-size: 44px;
+            font-weight: 800;
+            margin-bottom: 28px;
+            letter-spacing: -1.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .balance-actions {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .btn {
+            padding: 16px 24px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: -0.3px;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255, 255, 255, 0.15), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .btn:hover::after {
+            opacity: 1;
+        }
+        
+        .btn-primary {
+            background-color: var(--white);
+            color: var(--primary-dark);
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.25);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--white);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Quick Actions */
+        .section-title {
+            font-size: 21px;
+            font-weight: 700;
+            margin-bottom: 22px;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            letter-spacing: -0.5px;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 34px;
+        }
+        
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 10px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: var(--bg-card);
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .action-item:hover::before {
+            opacity: 1;
+        }
+        
+        .action-item:hover {
+            background-color: var(--bg-card);
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .action-icon {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: var(--white);
+            box-shadow: 0 6px 18px rgba(255, 107, 0, 0.25);
+            transition: var(--transition);
+        }
+        
+        .action-item:hover .action-icon {
+            transform: rotate(12deg) scale(1.12);
+        }
+        
+        .action-label {
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--text-primary);
+        }
+        
+        /* Recent Transactions */
+        .transactions-list {
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 22px 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+            animation: slideInRight 0.5s ease-out;
+            animation-fill-mode: both;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-item:nth-child(1) { animation-delay: 0.1s; }
+        .transaction-item:nth-child(2) { animation-delay: 0.2s; }
+        .transaction-item:nth-child(3) { animation-delay: 0.3s; }
+        .transaction-item:nth-child(4) { animation-delay: 0.4s; }
+        
+        .transaction-item:hover {
+            background-color: var(--bg-secondary);
+            padding-right: 25px;
+        }
+        
+        .transaction-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-left: 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .transaction-details {
+            flex: 1;
+        }
+        
+        .transaction-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 17px;
+            color: var(--text-primary);
+        }
+        
+        .transaction-date {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .transaction-amount {
+            font-weight: 800;
+            font-size: 19px;
+            letter-spacing: -0.5px;
+        }
+        
+        .income {
+            color: #10B981;
+        }
+        
+        .expense {
+            color: #EF4444;
+        }
+        
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            padding: 18px 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+            animation: slideUp 0.6s ease-out;
+            position: relative;
+            z-index: 50;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray-medium);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 10px 18px;
+            border-radius: 30px;
+            position: relative;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+            background-color: rgba(255, 107, 0, 0.08);
+            transform: translateY(-8px);
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            width: 42px;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 0 0 4px 4px;
+        }
+        
+        .nav-item:hover {
+            color: var(--primary);
+            transform: translateY(-4px);
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+        }
+        
+        .nav-label {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        
+        /* Floating Action Button */
+        .fab {
+            position: absolute;
+            bottom: 92px;
+            left: 32px;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 35px rgba(255, 107, 0, 0.4);
+            transition: var(--transition);
+            z-index: 100;
+            animation: pulse 2.5s infinite, float 6s ease-in-out infinite;
+            border: 5px solid var(--white);
+        }
+        
+        .fab:hover {
+            transform: scale(1.15) rotate(15deg);
+            box-shadow: 0 15px 45px rgba(255, 107, 0, 0.6);
+        }
+        
+        /* Pages */
+        .page {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-primary);
+            z-index: 1000;
+            padding: 24px 20px;
+            overflow-y: auto;
+            animation: slideInLeft 0.4s ease-out;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .page-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 22px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .page-back {
+            font-size: 26px;
+            color: var(--primary);
+            cursor: pointer;
+            margin-left: 18px;
+            transition: var(--transition);
+            padding: 8px;
+            border-radius: 50%;
+            background: var(--primary-gradient-light);
+        }
+        
+        .page-back:hover {
+            transform: translateX(-5px);
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .page-title {
+            font-size: 30px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+        }
+        
+        /* Services Grid */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .service-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 28px 22px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            text-align: center;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .service-card:hover::before {
+            opacity: 1;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
+        }
+        
+        .service-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 22px;
+            font-size: 32px;
+            color: var(--white);
+            box-shadow: 0 8px 25px rgba(255, 107, 0, 0.25);
+            transition: var(--transition);
+        }
+        
+        .service-card:hover .service-icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+        
+        .service-title {
+            font-size: 21px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        
+        .service-desc {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        
+        /* Wallet Page Styles */
+        .cards-container {
+            margin-bottom: 32px;
+        }
+        
+        .credit-card {
+            background: linear-gradient(135deg, #2D3748, #4A5568);
+            color: white;
+            border-radius: var(--radius-xl);
+            padding: 28px 26px;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+            animation: slideInRight 0.6s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .credit-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 32px 32px;
+            opacity: 0.2;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .card-type {
+            font-size: 19px;
+            font-weight: 600;
+        }
+        
+        .card-chip {
+            width: 52px;
+            height: 42px;
+            background: linear-gradient(135deg, #D4AF37, #FFD700);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-number {
+            font-size: 24px;
+            letter-spacing: 3px;
+            margin-bottom: 28px;
+            font-family: 'IBM Plex Sans Arabic', monospace;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-holder, .card-expiry {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-label {
+            font-size: 13px;
+            opacity: 0.7;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        .card-value {
+            font-size: 17px;
+            font-weight: 700;
+        }
+        
+        .add-card-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 20px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            width: 100%;
+            margin-bottom: 28px;
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3);
+            letter-spacing: -0.3px;
+        }
+        
+        .add-card-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(255, 107, 0, 0.4);
+        }
+        
+        .banks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+        
+        .bank-item {
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 22px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            border: 2px solid transparent;
+        }
+        
+        .bank-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
+        }
+        
+        .bank-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            font-size: 26px;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+        
+        .bank-item:hover .bank-icon {
+            background: var(--primary-gradient);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .bank-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        /* Profile Page Styles */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 34px;
+        }
+        
+        .profile-avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 52px;
+            color: white;
+            box-shadow: 0 10px 35px rgba(255, 107, 0, 0.3);
+            border: 6px solid var(--bg-card);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-avatar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+            animation: moveBackground 20s linear infinite;
+        }
+        
+        .profile-name {
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+        }
+        
+        .profile-email {
+            font-size: 17px;
+            color: var(--text-secondary);
+            margin-bottom: 22px;
+            font-weight: 500;
+        }
+        
+        .profile-level {
+            display: inline-block;
+            background: var(--primary-gradient);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.25);
+        }
+        
+        .settings-list {
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        
+        .settings-item {
+            display: flex;
+            align-items: center;
+            padding: 22px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+        
+        .settings-item:hover {
+            background-color: var(--bg-secondary);
+            padding-right: 28px;
+        }
+        
+        .settings-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: var(--primary-gradient-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--primary);
+            margin-left: 18px;
+            transition: var(--transition);
+        }
+        
+        .settings-item:hover .settings-icon {
+            background: var(--primary-gradient);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .settings-details {
+            flex: 1;
+        }
+        
+        .settings-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 17px;
+            color: var(--text-primary);
+        }
+        
+        .settings-desc {
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .settings-arrow {
+            color: var(--text-secondary);
+            font-size: 20px;
+            transition: var(--transition);
+        }
+        
+        .settings-item:hover .settings-arrow {
+            color: var(--primary);
+            transform: translateX(-5px);
+        }
+        
+        /* Transactions Page Styles */
+        .filter-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+        }
+        
+        .filter-btn {
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-card);
+            color: var(--text-secondary);
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            letter-spacing: -0.3px;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .transaction-date-group {
+            margin-bottom: 28px;
+        }
+        
+        .date-header {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 18px;
+            color: var(--text-primary);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            letter-spacing: -0.5px;
+        }
+        
+        /* Scan Page Styles */
+        .scan-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 70vh;
+            text-align: center;
+        }
+        
+        .scan-frame {
+            width: 300px;
+            height: 300px;
+            border: 5px solid var(--primary);
+            border-radius: 35px;
+            position: relative;
+            margin-bottom: 45px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(255, 107, 0, 0.25);
+            animation: pulse 2s infinite;
+        }
+        
+        .scan-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--primary-gradient);
+            animation: scanLine 2s linear infinite;
+        }
+        
+        .scan-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 90px;
+            color: var(--primary);
+            opacity: 0.3;
+        }
+        
+        .scan-text {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 18px;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+        }
+        
+        .scan-desc {
+            font-size: 17px;
+            color: var(--text-secondary);
+            margin-bottom: 34px;
+            max-width: 320px;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+        
+        /* Offers Page Styles */
+        .offers-container {
+            margin-top: 10px;
+        }
+        
+        .offer-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 0;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .offer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .offer-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 22px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .offer-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+            animation: moveBackground 20s linear infinite;
+        }
+        
+        .offer-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .offer-discount {
+            font-size: 42px;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .offer-body {
+            padding: 24px;
+        }
+        
+        .offer-desc {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        
+        .offer-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .offer-validity {
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .offer-code {
+            background: var(--primary-gradient-light);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+        
+        /* OTP Verification Page */
+        .otp-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+            background: var(--primary-gradient);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .otp-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 25px 25px;
+            opacity: 0.3;
+            animation: moveBackground 25s linear infinite;
+        }
+        
+        .otp-form {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 28px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .otp-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-align: center;
+            color: var(--black);
+        }
+        
+        .otp-subtitle {
+            font-size: 16px;
+            color: var(--gray-dark);
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .phone-display {
+            background-color: var(--off-white);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 2px solid var(--gray);
+        }
+        
+        .phone-number {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 5px;
+        }
+        
+        .change-number {
+            color: var(--primary);
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .change-number:hover {
+            text-decoration: underline;
+        }
+        
+        .otp-inputs {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .otp-input {
+            width: 60px;
+            height: 70px;
+            border-radius: 12px;
+            border: 2px solid var(--gray);
+            background-color: var(--off-white);
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            color: var(--black);
+            transition: var(--transition);
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+        }
+        
+        .otp-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+            outline: none;
+        }
+        
+        .otp-input.filled {
+            border-color: var(--primary);
+            background-color: rgba(255, 107, 0, 0.05);
+        }
+        
+        .resend-code {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--gray-dark);
+            font-size: 15px;
+        }
+        
+        .resend-code a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .resend-code a:hover {
+            text-decoration: underline;
+        }
+        
+        .timer {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 10px 35px rgba(255, 107, 0, 0.4);
+            }
+            50% {
+                box-shadow: 0 10px 45px rgba(255, 107, 0, 0.7);
+            }
+            100% {
+                box-shadow: 0 10px 35px rgba(255, 107, 0, 0.4);
+            }
+        }
+        
+        @keyframes pulseLogo {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+        
+        @keyframes moveBackground {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(20px, 20px);
+            }
+        }
+        
+        @keyframes scanLine {
+            0% {
+                top: 0;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .balance-amount {
+                font-size: 40px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+            }
+            
+            .action-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+            }
+            
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .banks-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .scan-frame {
+                width: 280px;
+                height: 280px;
+            }
+            
+            .otp-input {
+                width: 50px;
+                height: 60px;
+                font-size: 24px;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        .main-content::-webkit-scrollbar,
+        .page::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .main-content::-webkit-scrollbar-track,
+        .page::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+        
+        .main-content::-webkit-scrollbar-thumb,
+        .page::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        .main-content::-webkit-scrollbar-thumb:hover,
+        .page::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 28px;
+            padding: 32px;
+            width: 90%;
+            max-width: 420px;
+            animation: scaleIn 0.4s;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+        }
+        
+        .modal-close {
+            font-size: 26px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 8px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+        }
+        
+        .modal-close:hover {
+            color: var(--primary);
+            transform: rotate(90deg);
+            background: var(--primary-gradient-light);
+        }
+        
+        .form-group {
+            margin-bottom: 22px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 17px;
+            transition: var(--transition);
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+            background-color: var(--bg-card);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 17px;
+            background-color: var(--bg-secondary);
+            transition: var(--transition);
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            color: var(--text-primary);
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+            background-color: var(--bg-card);
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        
+        .empty-icon {
+            font-size: 60px;
+            color: var(--border-color);
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .empty-text {
+            font-size: 18px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .empty-subtext {
+            font-size: 15px;
+            color: var(--gray-medium);
+        }
+        
+        /* Switch Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+        
+        .theme-toggle:hover {
+            transform: rotate(30deg) scale(1.1);
+        }
+        
+        /* Language Selector */
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .language-selector:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Settings Sections */
+        .settings-section {
+            margin-bottom: 32px;
+        }
+        
+        .section-header {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 18px;
+            color: var(--text-primary);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            letter-spacing: -0.5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحة تسجيل الدخول -->
+    <div class="login-container" id="login-page">
+        <div class="language-selector" id="languageSelector">
+            <i class="fas fa-globe"></i>
+            <span>العربية</span>
+        </div>
+        
+        <div class="login-header">
+            <div class="login-logo">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="login-title">موزع</div>
+            <div class="login-subtitle">المحفظة الذكية لحياتك اليومية</div>
+        </div>
+        
+        <div class="login-form">
+            <div class="form-title">تسجيل الدخول</div>
+            
+            <div class="country-code">
+                <div class="country-flag">🇪🇬</div>
+                <select class="country-code-select" id="countryCode">
+                    <option value="+20">+20 مصر</option>
+                    <option value="+966">+966 السعودية</option>
+                    <option value="+971">+971 الإمارات</option>
+                    <option value="+973">+973 البحرين</option>
+                    <option value="+974">+974 قطر</option>
+                    <option value="+968">+968 عمان</option>
+                    <option value="+964">+964 العراق</option>
+                    <option value="+963">+963 سوريا</option>
+                    <option value="+962">+962 الأردن</option>
+                </select>
+                <input type="tel" class="phone-input" id="phoneInput" placeholder="أدخل رقم هاتفك" maxlength="10">
+            </div>
+            
+            <button class="login-btn" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                تسجيل الدخول
+            </button>
+            
+            <div class="login-footer">
+                <p>بالاستمرار فإنك توافق على <a href="#">شروط الاستخدام</a> و<a href="#">سياسة الخصوصية</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحة التحقق برمز OTP -->
+    <div class="otp-container" id="otp-page">
+        <div class="otp-form">
+            <div class="form-title">التحقق من رقم الهاتف</div>
+            <div class="otp-subtitle">أدخل رمز التحقق المكون من ٦ أرقام الذي أرسلناه إلى</div>
+            
+            <div class="phone-display">
+                <div class="phone-number" id="displayPhoneNumber">+20 1234567890</div>
+                <div class="change-number" id="changeNumberBtn">تغيير الرقم</div>
+            </div>
+            
+            <div class="otp-inputs">
+                <input type="text" class="otp-input" maxlength="1" data-index="0">
+                <input type="text" class="otp-input" maxlength="1" data-index="1">
+                <input type="text" class="otp-input" maxlength="1" data-index="2">
+                <input type="text" class="otp-input" maxlength="1" data-index="3">
+                <input type="text" class="otp-input" maxlength="1" data-index="4">
+                <input type="text" class="otp-input" maxlength="1" data-index="5">
+            </div>
+            
+            <button class="login-btn" id="verifyBtn" disabled>
+                <i class="fas fa-check-circle"></i>
+                تأكيد الرمز
+            </button>
+            
+            <div class="resend-code">
+                لم تستلم الرمز؟ 
+                <a href="#" id="resendCode">إعادة إرسال الرمز</a>
+                <span class="timer" id="timer"> (٠٢:٠٠)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- التطبيق الرئيسي -->
+    <div class="app-container" id="app-container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="app-logo">
+                <div class="logo-name">موزع</div>
+                <div class="logo-tagline">المحفظة الذكية لحياتك اليومية</div>
+            </div>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    <span></span>
+                </div>
+                <div class="header-icons">
+                    <i class="fas fa-bell" id="bellIcon">
+                        <span class="notification-badge">3</span>
+                    </i>
+                    <i class="fas fa-cog" id="settingsIcon"></i>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-avatar">م</div>
+                    <div class="user-text">
+                        <div class="user-greeting">مرحباً بعودتك،</div>
+                        <div class="user-name">محمد أحمد</div>
+                    </div>
+                </div>
+                <div class="user-level">المستوى الذهبي</div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Balance Card -->
+            <div class="balance-card">
+                <div class="balance-label">
+                    <i class="fas fa-wallet"></i>
+                    رصيدك الحالي
+                </div>
+                <div class="balance-amount">٨,٧٥٠ ر.س</div>
+                <div class="balance-actions">
+                    <button class="btn btn-primary" id="addBalanceBtn">
+                        <i class="fas fa-plus-circle"></i>
+                        إضافة رصيد
+                    </button>
+                    <button class="btn btn-outline" id="transferBtn">
+                        <i class="fas fa-exchange-alt"></i>
+                        تحويل
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">١٥</div>
+                    <div class="stat-label">معاملة هذا الشهر</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">٤,٢٠٠ ر.س</div>
+                    <div class="stat-label">إجمالي الإنفاق</div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="section-title">
+                <span>الخدمات السريعة</span>
+                <i class="fas fa-bolt" style="color: var(--primary);"></i>
+            </div>
+            <div class="quick-actions">
+                <div class="action-item" data-page="mobile-charge">
+                    <div class="action-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="action-label">شحن الرصيد</div>
+                </div>
+                <div class="action-item" data-page="electricity">
+                    <div class="action-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="action-label">فواتير الكهرباء</div>
+                </div>
+                <div class="action-item" data-page="subscriptions">
+                    <div class="action-icon">
+                        <i class="fas fa-tv"></i>
+                    </div>
+                    <div class="action-label">الاشتراكات</div>
+                </div>
+                <div class="action-item" data-page="shopping">
+                    <div class="action-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="action-label">التسوق</div>
+                </div>
+                <div class="action-item" data-page="games">
+                    <div class="action-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="action-label">الألعاب</div>
+                </div>
+                <div class="action-item" data-page="travel">
+                    <div class="action-icon">
+                        <i class="fas fa-plane"></i>
+                    </div>
+                    <div class="action-label">السفر</div>
+                </div>
+                <div class="action-item" data-page="offers">
+                    <div class="action-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div class="action-label">العروض</div>
+                </div>
+                <div class="action-item" data-page="more">
+                    <div class="action-icon">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                    <div class="action-label">المزيد</div>
+                </div>
+            </div>
+            
+            <!-- Recent Transactions -->
+            <div class="section-title">
+                <span>المعاملات الأخيرة</span>
+                <span style="font-size: 16px; color: var(--primary); font-weight: 700; cursor: pointer;" id="viewAllTransactions">عرض الكل</span>
+            </div>
+            <div class="transactions-list">
+                <div class="transaction-item">
+                    <div class="transaction-icon" style="background-color: rgba(16, 185, 129, 0.1); color: #10B981;">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">تحويل من أحمد خالد</div>
+                        <div class="transaction-date">١٥ يونيو ٢٠٢٣ - ١٠:٣٠ ص</div>
+                    </div>
+                    <div class="transaction-amount income">+٧٥٠ ر.س</div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-icon" style="background-color: rgba(239, 68, 68, 0.1); color: #EF4444;">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">متجر نون الإلكتروني</div>
+                        <div class="transaction-date">١٣ يونيو ٢٠٢٣ - ٠٣:١٥ م</div>
+                    </div>
+                    <div class="transaction-amount expense">-٣٢٠ ر.س</div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-icon" style="background-color: rgba(59, 130, 246, 0.1); color: #3B82F6;">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">شحن رصيد - موبايلي</div>
+                        <div class="transaction-date">١٠ يونيو ٢٠٢٣ - ٠٩:٠٠ ص</div>
+                    </div>
+                    <div class="transaction-amount expense">-١٠٠ ر.س</div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-icon" style="background-color: rgba(255, 152, 0, 0.1); color: #FF9800;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">فاتورة الكهرباء - يونيو</div>
+                        <div class="transaction-date">٥ يونيو ٢٠٢٣ - ٠١:٤٥ م</div>
+                    </div>
+                    <div class="transaction-amount expense">-٤٨٠ ر.س</div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Floating Action Button -->
+        <div class="fab" id="fabBtn">
+            <i class="fas fa-qrcode"></i>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="navigation">
+            <div class="nav-item active" data-page="home">
+                <i class="fas fa-home nav-icon"></i>
+                <span class="nav-label">الرئيسية</span>
+            </div>
+            <div class="nav-item" data-page="transactions">
+                <i class="fas fa-exchange-alt nav-icon"></i>
+                <span class="nav-label">المعاملات</span>
+            </div>
+            <div class="nav-item" data-page="scan">
+                <i class="fas fa-qrcode nav-icon"></i>
+                <span class="nav-label">المسح</span>
+            </div>
+            <div class="nav-item" data-page="wallet">
+                <i class="fas fa-wallet nav-icon"></i>
+                <span class="nav-label">المحفظة</span>
+            </div>
+            <div class="nav-item" data-page="profile">
+                <i class="fas fa-user nav-icon"></i>
+                <span class="nav-label">حسابي</span>
+            </div>
+        </nav>
+        
+        <!-- Transactions Page -->
+        <div class="page" id="transactions-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">المعاملات</div>
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active">الكل</button>
+                <button class="filter-btn">الدخل</button>
+                <button class="filter-btn">المصروفات</button>
+                <button class="filter-btn">الشحن</button>
+                <button class="filter-btn">التحويلات</button>
+                <button class="filter-btn">الفواتير</button>
+            </div>
+            
+            <div class="transaction-date-group">
+                <div class="date-header">يونيو ٢٠٢٣</div>
+                <div class="transactions-list">
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background-color: rgba(16, 185, 129, 0.1); color: #10B981;">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">مرتب شهر يونيو</div>
+                            <div class="transaction-date">٢٠ يونيو ٢٠٢٣ - ٠٨:٠٠ ص</div>
+                        </div>
+                        <div class="transaction-amount income">+١٢,٠٠٠ ر.س</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background-color: rgba(239, 68, 68, 0.1); color: #EF4444;">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">بنزين - محطة أرامكو</div>
+                            <div class="transaction-date">١٨ يونيو ٢٠٢٣ - ٠٥:٣٠ م</div>
+                        </div>
+                        <div class="transaction-amount expense">-١٥٠ ر.س</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background-color: rgba(59, 130, 246, 0.1); color: #3B82F6;">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">مطعم شاورما جاهز</div>
+                            <div class="transaction-date">١٦ يونيو ٢٠٢٣ - ٠٨:١٥ م</div>
+                        </div>
+                        <div class="transaction-amount expense">-٨٥ ر.س</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background-color: rgba(255, 152, 0, 0.1); color: #FF9800;">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">هدية عيد ميلاد صديق</div>
+                            <div class="transaction-date">١٢ يونيو ٢٠٢٣ - ٠٣:٠٠ م</div>
+                        </div>
+                        <div class="transaction-amount expense">-٣٥٠ ر.س</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="transaction-date-group">
+                <div class="date-header">مايو ٢٠٢٣</div>
+                <div class="transactions-list">
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background-color: rgba(16, 185, 129, 0.1); color: #10B981;">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">مكافأة عمل إضافي</div>
+                            <div class="transaction-date">٢٨ مايو ٢٠٢٣ - ٠٩:٣٠ ص</div>
+                        </div>
+                        <div class="transaction-amount income">+٢,٥٠٠ ر.س</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background-color: rgba(147, 51, 234, 0.1); color: #9333EA;">
+                            <i class="fas fa-plane"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">تذكرة طيران - الرياض</div>
+                            <div class="transaction-date">٢٢ مايو ٢٠٢٣ - ١٠:٠٠ ص</div>
+                        </div>
+                        <div class="transaction-amount expense">-٨٠٠ ر.س</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background-color: rgba(239, 68, 68, 0.1); color: #EF4444;">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">سوق بنده</div>
+                            <div class="transaction-date">١٥ مايو ٢٠٢٣ - ٠٦:٤٥ م</div>
+                        </div>
+                        <div class="transaction-amount expense">-٤٥٠ ر.س</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scan Page -->
+        <div class="page" id="scan-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">الماسح الضوئي</div>
+            </div>
+            
+            <div class="scan-container">
+                <div class="scan-frame">
+                    <div class="scan-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                </div>
+                <div class="scan-text">امسح رمز الاستجابة السريعة</div>
+                <div class="scan-desc">قم بتوجيه الكاميرا نحو رمز QR لتحويل الأموال أو الدفع بسرعة</div>
+                <button class="btn btn-primary" style="width: 220px;">
+                    <i class="fas fa-camera"></i>
+                    تشغيل الكاميرا
+                </button>
+            </div>
+            
+            <div class="section-title" style="margin-top: 34px;">
+                <span>العمليات السريعة</span>
+            </div>
+            
+            <div class="quick-actions">
+                <div class="action-item">
+                    <div class="action-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="action-label">طلب دفعة</div>
+                </div>
+                <div class="action-item">
+                    <div class="action-icon">
+                        <i class="fas fa-share-square"></i>
+                    </div>
+                    <div class="action-label">مشاركة QR</div>
+                </div>
+                <div class="action-item">
+                    <div class="action-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="action-label">سجل المسح</div>
+                </div>
+                <div class="action-item">
+                    <div class="action-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="action-label">إعدادات المسح</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Wallet Page -->
+        <div class="page" id="wallet-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">المحفظة</div>
+            </div>
+            
+            <div class="cards-container">
+                <div class="credit-card">
+                    <div class="card-header">
+                        <div class="card-type">بطاقة ائتمان</div>
+                        <div class="card-chip">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                    </div>
+                    <div class="card-number">**** **** **** ٤٥٣٢</div>
+                    <div class="card-footer">
+                        <div class="card-holder">
+                            <div class="card-label">حامل البطاقة</div>
+                            <div class="card-value">محمد أحمد</div>
+                        </div>
+                        <div class="card-expiry">
+                            <div class="card-label">تاريخ الانتهاء</div>
+                            <div class="card-value">٠٦/٢٦</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="credit-card" style="background: linear-gradient(135deg, #1E3A8A, #3B82F6);">
+                    <div class="card-header">
+                        <div class="card-type">بطاقة مصرفية</div>
+                        <div class="card-type">
+                            <i class="fab fa-cc-visa" style="font-size: 28px;"></i>
+                        </div>
+                    </div>
+                    <div class="card-number">**** **** **** ٢٣٤٥</div>
+                    <div class="card-footer">
+                        <div class="card-holder">
+                            <div class="card-label">حامل البطاقة</div>
+                            <div class="card-value">محمد أحمد</div>
+                        </div>
+                        <div class="card-expiry">
+                            <div class="card-label">تاريخ الانتهاء</div>
+                            <div class="card-value">٠٩/٢٥</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="add-card-btn" id="addCardBtn">
+                <i class="fas fa-plus-circle"></i>
+                إضافة بطاقة جديدة
+            </button>
+            
+            <div class="section-title">
+                <span>الحسابات البنكية المتصلة</span>
+            </div>
+            
+            <div class="banks-grid">
+                <div class="bank-item" data-bank="alrajhi">
+                    <div class="bank-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="bank-name">الراجحي</div>
+                </div>
+                <div class="bank-item" data-bank="albilad">
+                    <div class="bank-icon">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <div class="bank-name">البلاد</div>
+                </div>
+                <div class="bank-item" data-bank="alinma">
+                    <div class="bank-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <div class="bank-name">الإنماء</div>
+                </div>
+                <div class="bank-item" data-bank="riyad">
+                    <div class="bank-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="bank-name">الرياض</div>
+                </div>
+                <div class="bank-item" data-bank="sabb">
+                    <div class="bank-icon">
+                        <i class="fas fa-money-check-alt"></i>
+                    </div>
+                    <div class="bank-name">ساب</div>
+                </div>
+                <div class="bank-item" data-bank="anb">
+                    <div class="bank-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="bank-name">الأهلي</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Page (الإعدادات المطورة) -->
+        <div class="page" id="profile-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">حسابي</div>
+            </div>
+            
+            <div class="profile-header">
+                <div class="profile-avatar">م</div>
+                <div class="profile-name">محمد أحمد</div>
+                <div class="profile-email">mohammed.ahmed@example.com</div>
+                <div class="profile-level">المستوى الذهبي</div>
+            </div>
+            
+            <!-- قسم معلومات الحساب -->
+            <div class="settings-section">
+                <div class="section-header">معلومات الحساب</div>
+                <div class="settings-list">
+                    <div class="settings-item" data-setting="account-info">
+                        <div class="settings-icon">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">الملف الشخصي</div>
+                            <div class="settings-desc">تعديل بياناتك الشخصية والصورة</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="verification">
+                        <div class="settings-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">التحقق من الهوية</div>
+                            <div class="settings-desc">رفع وثائق التحقق من الهوية</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="addresses">
+                        <div class="settings-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">العناوين</div>
+                            <div class="settings-desc">إدارة عناوين الشحن والمنزل</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم الأمان -->
+            <div class="settings-section">
+                <div class="section-header">الأمان والخصوصية</div>
+                <div class="settings-list">
+                    <div class="settings-item" data-setting="change-password">
+                        <div class="settings-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">تغيير كلمة المرور</div>
+                            <div class="settings-desc">تحديث كلمة مرور حسابك</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="two-factor">
+                        <div class="settings-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">المصادقة الثنائية</div>
+                            <div class="settings-desc">تفعيل/تعطيل التحقق بخطوتين</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="biometric">
+                        <div class="settings-icon">
+                            <i class="fas fa-fingerprint"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">المصادقة البيومترية</div>
+                            <div class="settings-desc">بصمة الإصبع أو التعرف على الوجه</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="session-management">
+                        <div class="settings-icon">
+                            <i class="fas fa-laptop"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">إدارة الجلسات</div>
+                            <div class="settings-desc">عرض وإنهاء جلسات تسجيل الدخول</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم المظهر والإعدادات -->
+            <div class="settings-section">
+                <div class="section-header">المظهر والإعدادات</div>
+                <div class="settings-list">
+                    <div class="settings-item" id="themeToggle">
+                        <div class="settings-icon">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">الوضع الليلي</div>
+                            <div class="settings-desc">تفعيل/تعطيل الوضع الداكن</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <label class="switch">
+                                <input type="checkbox" id="darkModeToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="language">
+                        <div class="settings-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">اللغة</div>
+                            <div class="settings-desc">العربية، الإنجليزية، الفرنسية</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="currency">
+                        <div class="settings-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">العملة الافتراضية</div>
+                            <div class="settings-desc">ريال سعودي، دولار، يورو</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="notifications">
+                        <div class="settings-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">الإشعارات</div>
+                            <div class="settings-desc">إدارة التنبيهات والإشعارات</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم الإعدادات المالية -->
+            <div class="settings-section">
+                <div class="section-header">الإعدادات المالية</div>
+                <div class="settings-list">
+                    <div class="settings-item" data-setting="limits">
+                        <div class="settings-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">الحدود اليومية</div>
+                            <div class="settings-desc">ضبط حدود الإنفاق والتحويل</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="categories">
+                        <div class="settings-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">فئات الميزانية</div>
+                            <div class="settings-desc">إدارة فئات الإنفاق والميزانية</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="auto-pay">
+                        <div class="settings-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">الدفع التلقائي</div>
+                            <div class="settings-desc">إدارة المدفوعات التلقائية</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="tax-info">
+                        <div class="settings-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">معلومات الضرائب</div>
+                            <div class="settings-desc">إدارة معلومات الضرائب والفواتير</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم المساعدة والدعم -->
+            <div class="settings-section">
+                <div class="section-header">المساعدة والدعم</div>
+                <div class="settings-list">
+                    <div class="settings-item" data-setting="help-center">
+                        <div class="settings-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">مركز المساعدة</div>
+                            <div class="settings-desc">الدليل والأسئلة الشائعة</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="contact">
+                        <div class="settings-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">اتصل بنا</div>
+                            <div class="settings-desc">الدعم الفني والاستفسارات</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="terms">
+                        <div class="settings-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">الشروط والسياسات</div>
+                            <div class="settings-desc">شروط الاستخدام وسياسة الخصوصية</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="about">
+                        <div class="settings-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">عن التطبيق</div>
+                            <div class="settings-desc">إصدار التطبيق والمعلومات</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                    <div class="settings-item" data-setting="logout">
+                        <div class="settings-icon">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">تسجيل الخروج</div>
+                            <div class="settings-desc">إنهاء جلسة العمل الحالية</div>
+                        </div>
+                        <div class="settings-arrow">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Charge Page -->
+        <div class="page" id="mobile-charge-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">شحن الرصيد</div>
+            </div>
+            
+            <div class="service-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="service-title">موبايلي</div>
+                    <div class="service-desc">شحن رصيد وباقات إنترنت وخدمات موبايلي</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-sim-card"></i>
+                    </div>
+                    <div class="service-title">زين</div>
+                    <div class="service-desc">شحن رصيد وباقات إنترنت وخدمات زين</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-signal"></i>
+                    </div>
+                    <div class="service-title">الاتصالات السعودية</div>
+                    <div class="service-desc">شحن رصيد وباقات إنترنت وخدمات STC</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <div class="service-title">موبايلي فايبر</div>
+                    <div class="service-desc">دفع فواتير الإنترنت المنزلي</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <div class="service-title">الهاتف الثابت</div>
+                    <div class="service-desc">دفع فواتير الهاتف الأرضي</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="service-title">شركات أخرى</div>
+                    <div class="service-desc">خدمات شركات الاتصالات الأخرى</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Electricity Page -->
+        <div class="page" id="electricity-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">فواتير الكهرباء</div>
+            </div>
+            
+            <div class="service-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="service-title">الشركة السعودية للكهرباء</div>
+                    <div class="service-desc">دفع فواتير الكهرباء لجميع المناطق</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-solar-panel"></i>
+                    </div>
+                    <div class="service-title">الطاقة الشمسية</div>
+                    <div class="service-desc">دفع فواتير أنظمة الطاقة الشمسية</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="service-title">الإيجار الشهري</div>
+                    <div class="service-desc">تسديد فواتير الكهرباء للمستأجرين</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Subscriptions Page -->
+        <div class="page" id="subscriptions-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">الاشتراكات</div>
+            </div>
+            
+            <div class="service-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-tv"></i>
+                    </div>
+                    <div class="service-title">شاهد</div>
+                    <div class="service-desc">دفع اشتراكات منصة شاهد VOD</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <div class="service-title">نتفليكس</div>
+                    <div class="service-desc">دفع اشتراكات منصة نتفليكس</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="service-title">بلايستيشن</div>
+                    <div class="service-desc">دفع اشتراكات بلايستيشن بلس</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <div class="service-title">أنغامي</div>
+                    <div class="service-desc">دفع اشتراكات منصة أنغامي للموسيقى</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <div class="service-title">الجرائد والمجلات</div>
+                    <div class="service-desc">دفع اشتراكات الصحف والمجلات</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <div class="service-title">النوادي الرياضية</div>
+                    <div class="service-desc">دفع اشتراكات النوادي والصالات</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Shopping Page -->
+        <div class="page" id="shopping-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">التسوق</div>
+            </div>
+            
+            <div class="service-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fab fa-amazon"></i>
+                    </div>
+                    <div class="service-title">أمازون السعودية</div>
+                    <div class="service-desc">الدفع في متجر أمازون السعودية</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="service-title">نون</div>
+                    <div class="service-desc">الدفع في متجر نون الإلكتروني</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="service-title">سوق</div>
+                    <div class="service-desc">الدفع في منصة سوق للتسوق</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <div class="service-title">نمشي</div>
+                    <div class="service-desc">الدفع في متجر نمشي للملابس</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="service-title">طلبات</div>
+                    <div class="service-desc">الدفع في تطبيق طلبات للوجبات</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="service-title">أوبر وكريم</div>
+                    <div class="service-desc">دفع أجور وسائل النقل</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Games Page -->
+        <div class="page" id="games-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">الألعاب</div>
+            </div>
+            
+            <div class="service-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fab fa-playstation"></i>
+                    </div>
+                    <div class="service-title">بلايستيشن ستور</div>
+                    <div class="service-desc">شراء ألعاب وبلايستيشن نيتورك</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fab fa-xbox"></i>
+                    </div>
+                    <div class="service-title">إكس بوكس</div>
+                    <div class="service-desc">شراء ألعاب وإكس بوكس لايف</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fab fa-steam"></i>
+                    </div>
+                    <div class="service-title">ستيم</div>
+                    <div class="service-desc">شراء ألعاب ومحفظة ستيم</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="service-title">جوجل بلاي</div>
+                    <div class="service-desc">شراء تطبيقات وألعاب أندرويد</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fab fa-apple"></i>
+                    </div>
+                    <div class="service-title">آب ستور</div>
+                    <div class="service-desc">شراء تطبيقات وألعاب آيفون</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-dice"></i>
+                    </div>
+                    <div class="service-title">ألعاب أخرى</div>
+                    <div class="service-desc">خدمات شراء الألعاب المختلفة</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Travel Page -->
+        <div class="page" id="travel-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">السفر</div>
+            </div>
+            
+            <div class="service-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-plane"></i>
+                    </div>
+                    <div class="service-title">تذاكر الطيران</div>
+                    <div class="service-desc">حجز ودفع تذاكر الطيران</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-hotel"></i>
+                    </div>
+                    <div class="service-title">حجز الفنادق</div>
+                    <div class="service-desc">حجز ودفع غرف الفنادق</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-passport"></i>
+                    </div>
+                    <div class="service-title">التأشيرات</div>
+                    <div class="service-desc">دفع رسوم التأشيرات والسفارات</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-suitcase-rolling"></i>
+                    </div>
+                    <div class="service-title">حجز الرحلات</div>
+                    <div class="service-desc">حزم وبرامج السفر السياحية</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="service-title">تأجير السيارات</div>
+                    <div class="service-desc">دفع إيجار السيارات في السفر</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-umbrella-beach"></i>
+                    </div>
+                    <div class="service-title">العطلات</div>
+                    <div class="service-desc">دفع حزم العطلات والإجازات</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Offers Page -->
+        <div class="page" id="offers-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">العروض الحصرية</div>
+            </div>
+            
+            <div class="offers-container">
+                <div class="offer-card">
+                    <div class="offer-header">
+                        <div class="offer-title">خصم خاص للمستخدمين</div>
+                        <div class="offer-discount">٣٠٪</div>
+                    </div>
+                    <div class="offer-body">
+                        <div class="offer-desc">
+                            احصل على خصم 30% على جميع خدمات فواتير الكهرباء للشهر الحالي. العرض ساري حتى نهاية الشهر.
+                        </div>
+                        <div class="offer-details">
+                            <div class="offer-validity">صالح حتى: ٣٠ يونيو</div>
+                            <div class="offer-code">MOZ30</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="offer-card">
+                    <div class="offer-header">
+                        <div class="offer-title">عودة نقدية</div>
+                        <div class="offer-discount">١٠٪</div>
+                    </div>
+                    <div class="offer-body">
+                        <div class="offer-desc">
+                            استرداد نقدي 10% على جميع عمليات الشحن عبر التطبيق. سوف تضاف المبلغ تلقائياً إلى رصيدك.
+                        </div>
+                        <div class="offer-details">
+                            <div class="offer-validity">صالح حتى: ١٥ يوليو</div>
+                            <div class="offer-code">CASH10</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="offer-card">
+                    <div class="offer-header">
+                        <div class="offer-title">عرض التسوق</div>
+                        <div class="offer-discount">٢٥٪</div>
+                    </div>
+                    <div class="offer-body">
+                        <div class="offer-desc">
+                            خصم 25% على جميع مشترياتك من المتاجر الإلكترونية عبر موزع. يتضمن الشحن المجاني.
+                        </div>
+                        <div class="offer-details">
+                            <div class="offer-validity">صالح حتى: ١٠ يوليو</div>
+                            <div class="offer-code">SHOP25</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- More Services Page -->
+        <div class="page" id="more-page">
+            <div class="page-header">
+                <div class="page-back"><i class="fas fa-arrow-right"></i></div>
+                <div class="page-title">المزيد من الخدمات</div>
+            </div>
+            
+            <div class="service-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="service-title">الرسوم الدراسية</div>
+                    <div class="service-desc">دفع رسوم المدارس والجامعات</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="service-title">الفواتير الطبية</div>
+                    <div class="service-desc">دفع فواتير المستشفيات والعيادات</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <div class="service-title">التبرعات</div>
+                    <div class="service-desc">التبرع للجمعيات الخيرية</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="service-title">التذاكر والفعاليات</div>
+                    <div class="service-desc">دفع تذاكر الحفلات والفعاليات</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div class="service-title">الفواتير الحكومية</div>
+                    <div class="service-desc">دفع المخالفات والرسوم الحكومية</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="service-title">خدمات الأعمال</div>
+                    <div class="service-desc">دفع فواتير الشركات والمؤسسات</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- زر تبديل الوضع الليلي -->
+    <div class="theme-toggle" id="themeToggleBtn">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <script>
+        // تطبيق موزع - النسخة المطورة
+        document.addEventListener('DOMContentLoaded', function() {
+            // تهيئة التطبيق
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // تعريف العناصر
+            const elements = {
+                loginPage: document.getElementById('login-page'),
+                otpPage: document.getElementById('otp-page'),
+                appContainer: document.getElementById('app-container'),
+                loginBtn: document.getElementById('loginBtn'),
+                phoneInput: document.getElementById('phoneInput'),
+                countryCode: document.getElementById('countryCode'),
+                displayPhoneNumber: document.getElementById('displayPhoneNumber'),
+                changeNumberBtn: document.getElementById('changeNumberBtn'),
+                verifyBtn: document.getElementById('verifyBtn'),
+                resendCode: document.getElementById('resendCode'),
+                timer: document.getElementById('timer'),
+                otpInputs: document.querySelectorAll('.otp-input'),
+                darkModeToggle: document.getElementById('darkModeToggle'),
+                themeToggleBtn: document.getElementById('themeToggleBtn'),
+                
+                navItems: document.querySelectorAll('.nav-item'),
+                actionItems: document.querySelectorAll('.action-item'),
+                backButtons: document.querySelectorAll('.page-back'),
+                mainContent: document.getElementById('mainContent'),
+                header: document.querySelector('.header'),
+                viewAllTransactions: document.getElementById('viewAllTransactions'),
+                addCardBtn: document.getElementById('addCardBtn'),
+                bellIcon: document.getElementById('bellIcon'),
+                settingsIcon: document.getElementById('settingsIcon'),
+                filterBtns: document.querySelectorAll('.filter-btn'),
+                fabBtn: document.getElementById('fabBtn'),
+                addBalanceBtn: document.getElementById('addBalanceBtn'),
+                transferBtn: document.getElementById('transferBtn'),
+                settingsItems: document.querySelectorAll('.settings-item[data-setting]'),
+                languageSelector: document.getElementById('languageSelector')
+            };
+
+            // حالة التطبيق
+            const appState = {
+                currentPage: 'login',
+                userBalance: 8750,
+                notifications: 3,
+                isDarkMode: localStorage.getItem('darkMode') === 'true',
+                userPhone: '',
+                otpCode: '',
+                cards: [
+                    {
+                        type: 'بطاقة ائتمان',
+                        number: '•••• •••• •••• ٤٥٣٢',
+                        holder: 'محمد أحمد',
+                        expiry: '٠٦/٢٦'
+                    }
+                ],
+                transactions: [],
+                connectedBanks: []
+            };
+
+            // تحميل إعدادات الوضع الليلي
+            loadDarkModeSettings(appState, elements);
+            
+            // تهيئة تسجيل الدخول
+            setupLogin(elements, appState);
+            
+            // تهيئة التحقق برمز OTP
+            setupOTPVerification(elements, appState);
+            
+            // تهيئة التنقل
+            setupNavigation(elements, appState);
+            
+            // تهيئة التفاعلات
+            setupInteractions(elements, appState);
+            
+            // بدء المؤثرات
+            startAnimations();
+        }
+
+        function loadDarkModeSettings(state, elements) {
+            if (state.isDarkMode) {
+                document.body.classList.add('dark-mode');
+                if (elements.darkModeToggle) {
+                    elements.darkModeToggle.checked = true;
+                }
+            }
+        }
+
+        function setupLogin(elements, state) {
+            // زر تسجيل الدخول
+            elements.loginBtn.addEventListener('click', function() {
+                const phoneNumber = elements.phoneInput.value.trim();
+                const countryCode = elements.countryCode.value;
+                
+                if (!phoneNumber || phoneNumber.length < 10) {
+                    showMessage('خطأ', 'الرجاء إدخال رقم هاتف صحيح مكون من ١٠ أرقام على الأقل');
+                    return;
+                }
+                
+                // حفظ رقم الهاتف في حالة التطبيق
+                state.userPhone = countryCode + ' ' + phoneNumber;
+                elements.displayPhoneNumber.textContent = state.userPhone;
+                
+                // إخفاء صفحة تسجيل الدخول وإظهار صفحة التحقق
+                elements.loginPage.style.display = 'none';
+                elements.otpPage.style.display = 'flex';
+                elements.appContainer.style.display = 'none';
+                state.currentPage = 'otp';
+                
+                // بدء عد تنازلي لإعادة الإرسال
+                startResendTimer(elements);
+                
+                // توليد رمز OTP عشوائي (لأغراض العرض فقط)
+                generateRandomOTP(elements);
+                
+                // توجيه التركيز إلى أول حقل إدخال OTP
+                elements.otpInputs[0].focus();
+            });
+            
+            // زر تغيير الرقم
+            elements.changeNumberBtn.addEventListener('click', function() {
+                elements.otpPage.style.display = 'none';
+                elements.loginPage.style.display = 'flex';
+                elements.appContainer.style.display = 'none';
+                state.currentPage = 'login';
+            });
+            
+            // تحديد تلقائي لرمز مصر
+            elements.countryCode.value = '+20';
+        }
+
+        function setupOTPVerification(elements, state) {
+            // التحكم في حقول إدخال OTP
+            elements.otpInputs.forEach((input, index) => {
+                input.addEventListener('input', function(e) {
+                    // التحقق من أن المدخل رقم فقط
+                    if (this.value && !/^\d$/.test(this.value)) {
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // تحديث حالة الحقل
+                    if (this.value) {
+                        this.classList.add('filled');
+                    } else {
+                        this.classList.remove('filled');
+                    }
+                    
+                    // الانتقال للحقل التالي عند الإدخال
+                    if (this.value && index < elements.otpInputs.length - 1) {
+                        elements.otpInputs[index + 1].focus();
+                    }
+                    
+                    // التحقق من اكتمال جميع الحقول
+                    checkOTPComplete(elements);
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    // الانتقال للحقل السابق عند الضغط على Backspace
+                    if (e.key === 'Backspace' && !this.value && index > 0) {
+                        elements.otpInputs[index - 1].focus();
+                    }
+                    
+                    // الانتقال للحقل التالي باستخدام السهم الأيمن
+                    if (e.key === 'ArrowRight' && index < elements.otpInputs.length - 1) {
+                        elements.otpInputs[index + 1].focus();
+                    }
+                    
+                    // الانتقال للحقل السابق باستخدام السهم الأيسر
+                    if (e.key === 'ArrowLeft' && index > 0) {
+                        elements.otpInputs[index - 1].focus();
+                    }
+                });
+                
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').trim();
+                    
+                    if (/^\d{6}$/.test(pastedData)) {
+                        // تعبئة جميع الحقول من النص المنسوخ
+                        const digits = pastedData.split('');
+                        digits.forEach((digit, idx) => {
+                            if (elements.otpInputs[idx]) {
+                                elements.otpInputs[idx].value = digit;
+                                elements.otpInputs[idx].classList.add('filled');
+                            }
+                        });
+                        
+                        // توجيه التركيز للحقل الأخير
+                        elements.otpInputs[5].focus();
+                        
+                        // التحقق من اكتمال جميع الحقول
+                        checkOTPComplete(elements);
+                    }
+                });
+            });
+            
+            // زر التحقق من الرمز
+            elements.verifyBtn.addEventListener('click', function() {
+                const enteredOTP = Array.from(elements.otpInputs).map(input => input.value).join('');
+                
+                if (enteredOTP.length === 6) {
+                    // محاكاة عملية التحقق
+                    showLoading('جاري التحقق...');
+                    
+                    setTimeout(() => {
+                        // تسجيل الدخول الناجح
+                        elements.otpPage.style.display = 'none';
+                        elements.loginPage.style.display = 'none';
+                        elements.appContainer.style.display = 'flex';
+                        state.currentPage = 'home';
+                        
+                        // إعادة تعيين حقول OTP
+                        elements.otpInputs.forEach(input => {
+                            input.value = '';
+                            input.classList.remove('filled');
+                        });
+                        elements.verifyBtn.disabled = true;
+                        
+                        // إظهار رسالة ترحيب
+                        setTimeout(() => {
+                            showMessage('مرحباً بك!', 'تم تسجيل الدخول بنجاح إلى حسابك');
+                        }, 500);
+                    }, 1500);
+                }
+            });
+            
+            // زر إعادة إرسال الرمز
+            elements.resendCode.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // التحقق من انتهاء الوقت
+                const timerText = elements.timer.textContent;
+                const isTimerActive = timerText.includes('٠٠:٠٠');
+                
+                if (!isTimerActive) {
+                    showMessage('انتظر', 'يمكنك إعادة الإرسال بعد انتهاء الوقت الحالي');
+                    return;
+                }
+                
+                // إعادة إرسال الرمز
+                showMessage('تم الإرسال', 'تم إرسال رمز تحقق جديد إلى هاتفك');
+                startResendTimer(elements);
+                generateRandomOTP(elements);
+            });
+        }
+
+        function checkOTPComplete(elements) {
+            const allFilled = Array.from(elements.otpInputs).every(input => input.value.length === 1);
+            elements.verifyBtn.disabled = !allFilled;
+        }
+
+        function startResendTimer(elements) {
+            let timeLeft = 120; // 2 دقيقة بالثواني
+            
+            // تحديث العداد
+            const updateTimer = () => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                // تنسيق الوقت بالأرقام العربية
+                const formattedMinutes = minutes.toString().padStart(2, '٠');
+                const formattedSeconds = seconds.toString().padStart(2, '٠');
+                
+                elements.timer.textContent = ` (${formattedMinutes}:${formattedSeconds})`;
+                
+                if (timeLeft <= 0) {
+                    elements.timer.textContent = ' (٠٠:٠٠)';
+                    return;
+                }
+                
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            };
+            
+            updateTimer();
+        }
+
+        function generateRandomOTP(elements) {
+            // توليد رمز OTP عشوائي (لأغراض العرض فقط)
+            const randomOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // عرض الرمز في وحدة تحكم المتصفح (لأغراض العرض فقط)
+            console.log('رمز التحقق (لأغراض العرض):', randomOTP);
+            
+            // في تطبيق حقيقي، يتم إرسال الرمز إلى هاتف المستخدم
+        }
+
+        function setupNavigation(elements, state) {
+            // معالج التنقل الرئيسي
+            elements.navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const pageId = this.getAttribute('data-page');
+                    
+                    // تحديث حالة التنقل النشط
+                    elements.navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // تحديث حالة الصفحة
+                    state.currentPage = pageId;
+                    
+                    // إخفاء/إظهار المحتوى
+                    if (pageId === 'home') {
+                        showMainContent(elements);
+                    } else {
+                        showPage(pageId, elements);
+                    }
+                    
+                    // تأثير انتقال الصفحة
+                    animatePageTransition();
+                });
+            });
+            
+            // معالج عناصر الإجراءات السريعة
+            elements.actionItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const pageId = this.getAttribute('data-page');
+                    
+                    // تحديث التنقل
+                    elements.navItems.forEach(nav => nav.classList.remove('active'));
+                    document.querySelector('.nav-item[data-page="home"]').classList.add('active');
+                    
+                    // عرض الصفحة المطلوبة
+                    showPage(pageId, elements);
+                    
+                    // تحديث الحالة
+                    state.currentPage = pageId;
+                });
+            });
+            
+            // معالج أزرار العودة
+            elements.backButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    showMainContent(elements);
+                    elements.navItems.forEach(nav => nav.classList.remove('active'));
+                    document.querySelector('.nav-item[data-page="home"]').classList.add('active');
+                    state.currentPage = 'home';
+                });
+            });
+            
+            // عرض كل المعاملات
+            elements.viewAllTransactions.addEventListener('click', function() {
+                showPage('transactions', elements);
+                elements.navItems.forEach(nav => nav.classList.remove('active'));
+                document.querySelector('.nav-item[data-page="transactions"]').classList.add('active');
+                state.currentPage = 'transactions';
+            });
+        }
+
+        function setupInteractions(elements, state) {
+            // تبديل الوضع الليلي
+            if (elements.darkModeToggle) {
+                elements.darkModeToggle.addEventListener('change', function() {
+                    state.isDarkMode = this.checked;
+                    localStorage.setItem('darkMode', state.isDarkMode);
+                    
+                    if (state.isDarkMode) {
+                        document.body.classList.add('dark-mode');
+                    } else {
+                        document.body.classList.remove('dark-mode');
+                    }
+                });
+            }
+            
+            // زر تبديل الوضع الليلي (العائم)
+            if (elements.themeToggleBtn) {
+                elements.themeToggleBtn.addEventListener('click', function() {
+                    state.isDarkMode = !state.isDarkMode;
+                    localStorage.setItem('darkMode', state.isDarkMode);
+                    
+                    if (state.isDarkMode) {
+                        document.body.classList.add('dark-mode');
+                        if (elements.darkModeToggle) {
+                            elements.darkModeToggle.checked = true;
+                        }
+                        this.innerHTML = '<i class="fas fa-sun"></i>';
+                    } else {
+                        document.body.classList.remove('dark-mode');
+                        if (elements.darkModeToggle) {
+                            elements.darkModeToggle.checked = false;
+                        }
+                        this.innerHTML = '<i class="fas fa-moon"></i>';
+                    }
+                });
+            }
+            
+            // زر الإشعارات
+            if (elements.bellIcon) {
+                elements.bellIcon.addEventListener('click', showNotifications);
+            }
+            
+            // زر الإعدادات
+            if (elements.settingsIcon) {
+                elements.settingsIcon.addEventListener('click', function() {
+                    showPage('profile', elements);
+                    elements.navItems.forEach(nav => nav.classList.remove('active'));
+                    document.querySelector('.nav-item[data-page="profile"]').classList.add('active');
+                    state.currentPage = 'profile';
+                });
+            }
+            
+            // زر الفاب (QR)
+            if (elements.fabBtn) {
+                elements.fabBtn.addEventListener('click', function() {
+                    showPage('scan', elements);
+                    elements.navItems.forEach(nav => nav.classList.remove('active'));
+                    document.querySelector('.nav-item[data-page="scan"]').classList.add('active');
+                    state.currentPage = 'scan';
+                    
+                    // محاكاة المسح
+                    simulateQRScan();
+                });
+            }
+            
+            // زر إضافة الرصيد
+            if (elements.addBalanceBtn) {
+                elements.addBalanceBtn.addEventListener('click', function() {
+                    showAddBalanceModal();
+                });
+            }
+            
+            // زر التحويل
+            if (elements.transferBtn) {
+                elements.transferBtn.addEventListener('click', function() {
+                    showTransferModal();
+                });
+            }
+            
+            // زر إضافة بطاقة
+            if (elements.addCardBtn) {
+                elements.addCardBtn.addEventListener('click', function() {
+                    showAddCardModal();
+                });
+            }
+            
+            // فلتر المعاملات
+            if (elements.filterBtns) {
+                elements.filterBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        elements.filterBtns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        const filter = this.textContent;
+                        filterTransactions(filter);
+                    });
+                });
+            }
+            
+            // النقر على البنوك
+            document.querySelectorAll('.bank-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const bankId = this.getAttribute('data-bank');
+                    showConnectBankModal(bankId);
+                });
+            });
+            
+            // النقر على المعاملات
+            document.querySelectorAll('.transaction-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    showTransactionDetails(this);
+                });
+            });
+            
+            // النقر على البطاقات الخدمية
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const serviceName = this.querySelector('.service-title').textContent;
+                    showServiceProcessing(serviceName);
+                });
+            });
+            
+            // النقر على عناصر الإعدادات
+            if (elements.settingsItems) {
+                elements.settingsItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        const settingId = this.getAttribute('data-setting');
+                        showSettingsModal(settingId);
+                    });
+                });
+            }
+            
+            // تغيير اللغة
+            if (elements.languageSelector) {
+                elements.languageSelector.addEventListener('click', function() {
+                    showLanguageModal();
+                });
+            }
+        }
+
+        function showMainContent(elements) {
+            elements.mainContent.style.display = 'block';
+            elements.header.style.display = 'flex';
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+        }
+
+        function showPage(pageId, elements) {
+            elements.mainContent.style.display = 'none';
+            elements.header.style.display = 'none';
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(`${pageId}-page`).classList.add('active');
+        }
+
+        function showSettingsModal(settingId) {
+            let modalTitle = '';
+            let modalContent = '';
+            
+            switch(settingId) {
+                case 'account-info':
+                    modalTitle = 'الملف الشخصي';
+                    modalContent = `
+                        <form id="profileForm">
+                            <div class="form-group">
+                                <label class="form-label">الاسم الكامل</label>
+                                <input type="text" class="form-input" value="محمد أحمد" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">البريد الإلكتروني</label>
+                                <input type="email" class="form-input" value="mohammed.ahmed@example.com" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">رقم الجوال</label>
+                                <input type="tel" class="form-input" value="0550123456" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">تاريخ الميلاد</label>
+                                <input type="date" class="form-input" value="1990-01-15" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                <i class="fas fa-save"></i>
+                                حفظ التغييرات
+                            </button>
+                        </form>
+                    `;
+                    break;
+                    
+                case 'change-password':
+                    modalTitle = 'تغيير كلمة المرور';
+                    modalContent = `
+                        <form id="passwordForm">
+                            <div class="form-group">
+                                <label class="form-label">كلمة المرور الحالية</label>
+                                <input type="password" class="form-input" placeholder="أدخل كلمة المرور الحالية" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">كلمة المرور الجديدة</label>
+                                <input type="password" class="form-input" placeholder="كلمة مرور جديدة (8 أحرف على الأقل)" required minlength="8">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">تأكيد كلمة المرور الجديدة</label>
+                                <input type="password" class="form-input" placeholder="أعد إدخال كلمة المرور الجديدة" required>
+                            </div>
+                            
+                            <div style="background: #fef3c7; padding: 15px; border-radius: 12px; margin-bottom: 20px; border-right: 4px solid #f59e0b;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                    <i class="fas fa-shield-alt" style="color: #f59e0b;"></i>
+                                    <span style="font-weight: 700;">نصائح أمنية</span>
+                                </div>
+                                <ul style="color: #92400e; font-size: 14px; margin: 0; padding-right: 15px;">
+                                    <li>استخدم 8 أحرف على الأقل</li>
+                                    <li>اخلط بين الأحرف والأرقام والرموز</li>
+                                    <li>لا تستخدم كلمات مرور سهلة التخمين</li>
+                                </ul>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                <i class="fas fa-key"></i>
+                                تغيير كلمة المرور
+                            </button>
+                        </form>
+                    `;
+                    break;
+                    
+                case 'language':
+                    modalTitle = 'إعدادات اللغة';
+                    modalContent = `
+                        <div style="margin-bottom: 20px;">
+                            <div class="settings-item" style="border: none; padding: 15px 0;">
+                                <div class="settings-icon">
+                                    <i class="fas fa-language"></i>
+                                </div>
+                                <div class="settings-details">
+                                    <div class="settings-title">العربية</div>
+                                    <div class="settings-desc">اللغة الافتراضية</div>
+                                </div>
+                                <div style="color: var(--primary); font-size: 20px;">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-item" style="border: none; padding: 15px 0; border-top: 1px solid var(--border-color);">
+                                <div class="settings-icon">
+                                    <i class="fas fa-globe"></i>
+                                </div>
+                                <div class="settings-details">
+                                    <div class="settings-title">الإنجليزية</div>
+                                    <div class="settings-desc">English</div>
+                                </div>
+                                <div style="color: var(--text-secondary); font-size: 20px;">
+                                    <i class="far fa-circle"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-item" style="border: none; padding: 15px 0; border-top: 1px solid var(--border-color);">
+                                <div class="settings-icon">
+                                    <i class="fas fa-globe"></i>
+                                </div>
+                                <div class="settings-details">
+                                    <div class="settings-title">الفرنسية</div>
+                                    <div class="settings-desc">Français</div>
+                                </div>
+                                <div style="color: var(--text-secondary); font-size: 20px;">
+                                    <i class="far fa-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i>
+                            حفظ الإعدادات
+                        </button>
+                    `;
+                    break;
+                    
+                case 'currency':
+                    modalTitle = 'العملة الافتراضية';
+                    modalContent = `
+                        <div style="margin-bottom: 20px;">
+                            <div class="settings-item" style="border: none; padding: 15px 0;">
+                                <div class="settings-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="settings-details">
+                                    <div class="settings-title">الريال السعودي (ر.س)</div>
+                                    <div class="settings-desc">العملة الافتراضية</div>
+                                </div>
+                                <div style="color: var(--primary); font-size: 20px;">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-item" style="border: none; padding: 15px 0; border-top: 1px solid var(--border-color);">
+                                <div class="settings-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <div class="settings-details">
+                                    <div class="settings-title">الدولار الأمريكي ($)</div>
+                                    <div class="settings-desc">US Dollar</div>
+                                </div>
+                                <div style="color: var(--text-secondary); font-size: 20px;">
+                                    <i class="far fa-circle"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-item" style="border: none; padding: 15px 0; border-top: 1px solid var(--border-color);">
+                                <div class="settings-icon">
+                                    <i class="fas fa-euro-sign"></i>
+                                </div>
+                                <div class="settings-details">
+                                    <div class="settings-title">اليورو (€)</div>
+                                    <div class="settings-desc">Euro</div>
+                                </div>
+                                <div style="color: var(--text-secondary); font-size: 20px;">
+                                    <i class="far fa-circle"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-item" style="border: none; padding: 15px 0; border-top: 1px solid var(--border-color);">
+                                <div class="settings-icon">
+                                    <i class="fas fa-pound-sign"></i>
+                                </div>
+                                <div class="settings-details">
+                                    <div class="settings-title">الجنيه المصري (ج.م)</div>
+                                    <div class="settings-desc">Egyptian Pound</div>
+                                </div>
+                                <div style="color: var(--text-secondary); font-size: 20px;">
+                                    <i class="far fa-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i>
+                            حفظ الإعدادات
+                        </button>
+                    `;
+                    break;
+                    
+                case 'notifications':
+                    modalTitle = 'إدارة الإشعارات';
+                    modalContent = `
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                                <div>
+                                    <div style="font-weight: 700;">إشعارات الدفع</div>
+                                    <div style="font-size: 14px; color: var(--text-secondary);">تلقى إشعارات عند إتمام المعاملات</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                                <div>
+                                    <div style="font-weight: 700;">إشعارات الرصيد</div>
+                                    <div style="font-size: 14px; color: var(--text-secondary);">تنبيهات عندما يصل رصيدك لمستوى معين</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                                <div>
+                                    <div style="font-weight: 700;">إشعارات العروض</div>
+                                    <div style="font-size: 14px; color: var(--text-secondary);">عروض حصرية وخصومات</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                                <div>
+                                    <div style="font-weight: 700;">إشعارات الأمان</div>
+                                    <div style="font-size: 14px; color: var(--text-secondary);">تنبيهات حول نشاط الحساب</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                                <div>
+                                    <div style="font-weight: 700;">الإشعارات الترويجية</div>
+                                    <div style="font-size: 14px; color: var(--text-secondary);">عروض من شركائنا</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i>
+                            حفظ الإعدادات
+                        </button>
+                    `;
+                    break;
+                    
+                case 'logout':
+                    modalTitle = 'تسجيل الخروج';
+                    modalContent = `
+                        <div style="text-align: center; padding: 20px 0;">
+                            <div style="font-size: 60px; color: #FF6B00; margin-bottom: 20px;">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <h3 style="margin-bottom: 10px;">هل أنت متأكد من تسجيل الخروج؟</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 30px;">ستحتاج إلى إعادة تسجيل الدخول لاستخدام التطبيق مرة أخرى</p>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn" style="flex: 1; background: var(--bg-secondary); color: var(--text-secondary);" onclick="this.closest('.modal-overlay').remove()">
+                                    إلغاء
+                                </button>
+                                <button class="btn btn-primary" style="flex: 1;" id="confirmLogout">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    نعم، سجل الخروج
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                default:
+                    modalTitle = 'الإعدادات';
+                    modalContent = `
+                        <div style="text-align: center; padding: 30px 0;">
+                            <div style="font-size: 60px; color: #FF6B00; margin-bottom: 20px;">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h3 style="margin-bottom: 10px;">${settingId}</h3>
+                            <p style="color: var(--text-secondary);">هذه الإعدادات قيد التطوير وسوف تكون متاحة قريباً.</p>
+                        </div>
+                    `;
+            }
+            
+            const modal = createModal(modalTitle, modalContent);
+            
+            // إضافة معالج خاص لتسجيل الخروج
+            if (settingId === 'logout') {
+                const confirmBtn = modal.querySelector('#confirmLogout');
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', function() {
+                        // العودة إلى صفحة تسجيل الدخول
+                        document.getElementById('app-container').style.display = 'none';
+                        document.getElementById('login-page').style.display = 'flex';
+                        document.getElementById('otp-page').style.display = 'none';
+                        
+                        // إغلاق النافذة المنبثقة
+                        modal.remove();
+                        
+                        // إظهار رسالة تأكيد
+                        setTimeout(() => {
+                            showMessage('تم تسجيل الخروج', 'تم تسجيل خروجك من الحساب بنجاح');
+                        }, 500);
+                    });
+                }
+            }
+        }
+
+        function showLanguageModal() {
+            const modal = createModal('اختر اللغة', `
+                <div style="margin-bottom: 20px;">
+                    <div class="settings-item" style="border: none; padding: 15px 0; cursor: pointer;" onclick="changeLanguage('ar')">
+                        <div class="settings-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">العربية</div>
+                            <div class="settings-desc">اللغة العربية</div>
+                        </div>
+                        <div style="color: var(--primary); font-size: 20px;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-item" style="border: none; padding: 15px 0; border-top: 1px solid var(--border-color); cursor: pointer;" onclick="changeLanguage('en')">
+                        <div class="settings-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">الإنجليزية</div>
+                            <div class="settings-desc">English</div>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 20px;">
+                            <i class="far fa-circle"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-item" style="border: none; padding: 15px 0; border-top: 1px solid var(--border-color); cursor: pointer;" onclick="changeLanguage('fr')">
+                        <div class="settings-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="settings-details">
+                            <div class="settings-title">الفرنسية</div>
+                            <div class="settings-desc">Français</div>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 20px;">
+                            <i class="far fa-circle"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" style="width: 100%; background: var(--bg-secondary); color: var(--text-secondary);" onclick="this.closest('.modal-overlay').remove()">
+                    إغلاق
+                </button>
+            `);
+        }
+
+        function changeLanguage(lang) {
+            // محاكاة تغيير اللغة
+            if (lang === 'ar') {
+                showMessage('تم التغيير', 'تم تغيير اللغة إلى العربية');
+            } else if (lang === 'en') {
+                showMessage('Language Changed', 'Language has been changed to English');
+            } else if (lang === 'fr') {
+                showMessage('Langue Changée', 'La langue a été changée en français');
+            }
+            
+            // إغلاق النافذة المنبثقة
+            document.querySelector('.modal-overlay').remove();
+        }
+
+        // ======== الدوال المساعدة ========
+        
+        function createModal(title, content) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title">${title}</div>
+                        <div class="modal-close" onclick="this.closest('.modal-overlay').remove()">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                    ${content}
+                </div>
+            `;
+            document.body.appendChild(modal);
+            return modal;
+        }
+
+        function showMessage(title, message) {
+            const modal = createModal(title, `
+                <div style="text-align: center; padding: 20px 0;">
+                    <div style="font-size: 60px; color: #10B981; margin-bottom: 20px;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 30px;">${message}</p>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="this.closest('.modal-overlay').remove()">
+                        <i class="fas fa-check"></i>
+                        موافق
+                    </button>
+                </div>
+            `);
+        }
+
+        function showLoading(message) {
+            const modal = createModal('جاري المعالجة', `
+                <div style="text-align: center; padding: 30px 0;">
+                    <div class="spinner" style="margin: 20px auto;"></div>
+                    <p style="color: var(--text-secondary); margin-top: 20px;">${message}</p>
+                </div>
+            `);
+            
+            // إغلاق التحميل بعد 2 ثانية (لأغراض العرض فقط)
+            setTimeout(() => {
+                if (modal && modal.parentNode) {
+                    modal.remove();
+                }
+            }, 2000);
+        }
+
+        function showNotifications() {
+            const modal = createModal('الإشعارات', `
+                <div style="text-align: right;">
+                    <div class="notification-item">
+                        <div style="display: flex; align-items: center; margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 12px;">
+                            <div style="width: 50px; height: 50px; background: #10B981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; margin-bottom: 5px;">تحويل جديد بقيمة 200 ر.س</div>
+                                <div style="font-size: 14px; color: var(--text-secondary);">من: سارة محمد - منذ ٢ ساعة</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <div style="display: flex; align-items: center; margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 12px;">
+                            <div style="width: 50px; height: 50px; background: #FF6B00; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; margin-bottom: 5px;">عرض خاص: خصم 20% على خدمات الكهرباء</div>
+                                <div style="font-size: 14px; color: var(--text-secondary);">صالح حتى ٣٠ يونيو - منذ ١ يوم</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <div style="display: flex; align-items: center; padding: 15px; background: var(--bg-secondary); border-radius: 12px;">
+                            <div style="width: 50px; height: 50px; background: #3B82F6; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; margin-bottom: 5px;">تحديث التطبيق متاح</div>
+                                <div style="font-size: 14px; color: var(--text-secondary);">الإصدار ٢.١.١ - منذ ٣ أيام</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="this.closest('.modal-overlay').remove()">
+                    <i class="fas fa-check"></i>
+                    تمت القراءة
+                </button>
+            `);
+            
+            // تحديث عداد الإشعارات
+            document.querySelector('.notification-badge').textContent = '0';
+            document.querySelector('.notification-badge').style.backgroundColor = '#10B981';
+        }
+
+        function simulateQRScan() {
+            setTimeout(() => {
+                const modal = createModal('تم المسح بنجاح', `
+                    <div style="text-align: center; padding: 20px 0;">
+                        <div style="font-size: 60px; color: #10B981; margin-bottom: 20px;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 style="margin-bottom: 10px;">تم مسح الرمز بنجاح</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 30px;">جاري معالجة الدفع...</p>
+                        <div class="spinner"></div>
+                    </div>
+                `);
+                
+                setTimeout(() => {
+                    modal.remove();
+                    createModal('عملية ناجحة', `
+                        <div style="text-align: center; padding: 20px 0;">
+                            <div style="font-size: 60px; color: #10B981; margin-bottom: 20px;">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h3 style="margin-bottom: 10px;">تم الدفع بنجاح</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 20px;">تم تحويل 150 ر.س إلى محمد أحمد</p>
+                            <div style="background: var(--bg-secondary); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span>رقم المرجع:</span>
+                                    <span style="font-weight: 700;">#${Math.floor(100000 + Math.random() * 900000)}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>التاريخ:</span>
+                                    <span style="font-weight: 700;">${new Date().toLocaleDateString('ar-SA')}</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%;" onclick="this.closest('.modal-overlay').remove()">
+                                <i class="fas fa-check"></i>
+                                تم
+                            </button>
+                        </div>
+                    `);
+                }, 2000);
+            }, 1500);
+        }
+
+        function showAddBalanceModal() {
+            createModal('إضافة رصيد', `
+                <form id="addBalanceForm">
+                    <div class="form-group">
+                        <label class="form-label">المبلغ</label>
+                        <input type="number" class="form-input" placeholder="أدخل المبلغ بالريال السعودي" min="10" max="5000" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">طريقة الدفع</label>
+                        <select class="form-select" required>
+                            <option value="">اختر طريقة الدفع</option>
+                            <option value="card">البطاقة الائتمانية</option>
+                            <option value="bank">التحويل البنكي</option>
+                            <option value="apple">Apple Pay</option>
+                            <option value="stc">STC Pay</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-plus-circle"></i>
+                        إضافة الرصيد
+                    </button>
+                </form>
+            `);
+            
+            document.getElementById('addBalanceForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const amount = this.querySelector('input').value;
+                showMessage('تمت الإضافة', `تمت إضافة ${amount} ر.س إلى رصيدك بنجاح!`);
+                this.closest('.modal-overlay').remove();
+            });
+        }
+
+        function showTransferModal() {
+            createModal('تحويل الأموال', `
+                <form id="transferForm">
+                    <div class="form-group">
+                        <label class="form-label">رقم الجوال أو البريد الإلكتروني</label>
+                        <input type="text" class="form-input" placeholder="أدخل رقم الجوال أو البريد الإلكتروني" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">المبلغ</label>
+                        <input type="number" class="form-input" placeholder="المبلغ بالريال السعودي" min="1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">الرسالة (اختياري)</label>
+                        <input type="text" class="form-input" placeholder="رسالة للشخص المستلم">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-paper-plane"></i>
+                        إرسال التحويل
+                    </button>
+                </form>
+            `);
+        }
+
+        function showAddCardModal() {
+            createModal('إضافة بطاقة جديدة', `
+                <form id="addCardForm">
+                    <div class="form-group">
+                        <label class="form-label">رقم البطاقة</label>
+                        <input type="text" class="form-input" placeholder="1234 5678 9012 3456" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">اسم حامل البطاقة</label>
+                        <input type="text" class="form-input" placeholder="كما هو مكتوب على البطاقة" required>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label class="form-label">تاريخ الانتهاء</label>
+                            <input type="text" class="form-input" placeholder="MM/YY" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">رمز الأمان (CVV)</label>
+                            <input type="text" class="form-input" placeholder="123" required maxlength="3">
+                        </div>
+                    </div>
+                    
+                    <div style="background: #fef3c7; padding: 15px; border-radius: 12px; margin-bottom: 20px; border-right: 4px solid #f59e0b;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <i class="fas fa-shield-alt" style="color: #f59e0b;"></i>
+                            <span style="font-weight: 700;">معلومات أمنية</span>
+                        </div>
+                        <p style="color: #92400e; font-size: 14px; margin: 0;">
+                            يتم تخزين معلومات بطاقتك بشكل آمن ومشفرة. نحن لا نخزن رمز الأمان (CVV).
+                        </p>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-plus-circle"></i>
+                        إضافة البطاقة
+                    </button>
+                </form>
+            `);
+        }
+
+        function showConnectBankModal(bankId) {
+            const bankNames = {
+                'alrajhi': 'الراجحي',
+                'albilad': 'البلاد',
+                'alinma': 'الإنماء',
+                'riyad': 'الرياض',
+                'sabb': 'ساب',
+                'anb': 'الأهلي'
+            };
+            
+            createModal(`ربط حساب ${bankNames[bankId]}`, `
+                <form id="connectBankForm">
+                    <div class="form-group">
+                        <label class="form-label">رقم الحساب البنكي (IBAN)</label>
+                        <input type="text" class="form-input" placeholder="SAXX XXXX XXXX XXXX XXXX XXXX" required pattern="SA[0-9]{22}">
+                        <small style="color: var(--text-secondary); display: block; margin-top: 5px;">يجب أن يبدأ بـ SA ويتبعه 22 رقم</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">اسم صاحب الحساب</label>
+                        <input type="text" class="form-input" placeholder="كما هو مدون في البنك" required>
+                    </div>
+                    
+                    <div style="background: #fef3c7; padding: 15px; border-radius: 12px; margin-bottom: 20px; border-right: 4px solid #f59e0b;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <i class="fas fa-shield-alt" style="color: #f59e0b;"></i>
+                            <span style="font-weight: 700;">معلومات أمنية</span>
+                        </div>
+                        <p style="color: #92400e; font-size: 14px; margin: 0;">
+                            يتم تخزين معلوماتك بشكل آمن ومشفرة. نحن لا نخزن كلمات المرور الخاصة بك.
+                        </p>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-link"></i>
+                        ربط الحساب
+                    </button>
+                </form>
+            `);
+        }
+
+        function showTransactionDetails(transactionElement) {
+            const title = transactionElement.querySelector('.transaction-title').textContent;
+            const amount = transactionElement.querySelector('.transaction-amount').textContent;
+            const date = transactionElement.querySelector('.transaction-date').textContent;
+            const isIncome = amount.includes('+');
+            
+            createModal('تفاصيل المعاملة', `
+                <div style="text-align: center; padding: 10px 0;">
+                    <div style="font-size: 50px; color: ${isIncome ? '#10B981' : '#EF4444'}; margin-bottom: 20px;">
+                        <i class="fas ${isIncome ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
+                    </div>
+                    <h3 style="margin-bottom: 10px;">${title}</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 10px;">${date}</p>
+                    <div style="font-size: 36px; font-weight: 800; color: ${isIncome ? '#10B981' : '#EF4444'}; margin: 20px 0;">
+                        ${amount}
+                    </div>
+                    
+                    <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; margin: 20px 0; text-align: right;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                            <span>رقم المرجع:</span>
+                            <span style="font-weight: 700;">#${Math.floor(100000 + Math.random() * 900000)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                            <span>الحالة:</span>
+                            <span style="color: #10B981; font-weight: 700;">مكتمل</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>الرصيد بعد المعاملة:</span>
+                            <span style="font-weight: 700;">${isIncome ? '٩,٠٠٠' : '٨,٢٧٠'} ر.س</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button class="btn" style="flex: 1; background: var(--bg-secondary); color: var(--text-secondary);" onclick="this.closest('.modal-overlay').remove()">
+                            إغلاق
+                        </button>
+                        <button class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-share"></i>
+                            مشاركة
+                        </button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function showServiceProcessing(serviceName) {
+            createModal(serviceName, `
+                <div style="text-align: center; padding: 20px 0;">
+                    <div class="spinner" style="margin: 30px auto;"></div>
+                    <h3 style="margin-bottom: 10px;">جاري تحضير الخدمة</h3>
+                    <p style="color: var(--text-secondary);">${serviceName} - قيد المعالجة...</p>
+                </div>
+            `);
+            
+            setTimeout(() => {
+                document.querySelector('.modal-overlay').remove();
+                createModal('جاهز للمعالجة', `
+                    <div style="text-align: center; padding: 20px 0;">
+                        <div style="font-size: 60px; color: #10B981; margin-bottom: 20px;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 style="margin-bottom: 10px;">جاهز للمعالجة</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 30px;">${serviceName} - اكمل بيانات الخدمة</p>
+                        
+                        <form style="text-align: right;">
+                            <div class="form-group">
+                                <label class="form-label">رقم الهاتف</label>
+                                <input type="tel" class="form-input" placeholder="05XXXXXXXX" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">المبلغ</label>
+                                <select class="form-select" required>
+                                    <option value="">اختر المبلغ</option>
+                                    <option value="10">١٠ ر.س</option>
+                                    <option value="20">٢٠ ر.س</option>
+                                    <option value="50">٥٠ ر.س</option>
+                                    <option value="100">١٠٠ ر.س</option>
+                                    <option value="200">٢٠٠ ر.س</option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                <i class="fas fa-check"></i>
+                                تأكيد المعاملة
+                            </button>
+                        </form>
+                    </div>
+                `);
+            }, 2000);
+        }
+
+        function filterTransactions(filterType) {
+            // محاكاة عملية الفلترة
+            const transactions = document.querySelectorAll('.transaction-item');
+            transactions.forEach(transaction => {
+                const amount = transaction.querySelector('.transaction-amount').textContent;
+                
+                if (filterType === 'الكل') {
+                    transaction.style.display = 'flex';
+                } else if (filterType === 'الدخل' && amount.includes('+')) {
+                    transaction.style.display = 'flex';
+                } else if (filterType === 'المصروفات' && amount.includes('-')) {
+                    transaction.style.display = 'flex';
+                } else if (filterType === 'الشحن' && transaction.querySelector('.transaction-title').textContent.includes('شحن')) {
+                    transaction.style.display = 'flex';
+                } else if (filterType === 'التحويلات' && transaction.querySelector('.transaction-title').textContent.includes('تحويل')) {
+                    transaction.style.display = 'flex';
+                } else if (filterType === 'الفواتير' && transaction.querySelector('.transaction-title').textContent.includes('فاتورة')) {
+                    transaction.style.display = 'flex';
+                } else {
+                    transaction.style.display = 'none';
+                }
+            });
+        }
+
+        function startAnimations() {
+            // بدء المؤثرات
+            setInterval(() => {
+                // تأثيرات ديناميكية
+                const balanceCard = document.querySelector('.balance-card');
+                if (balanceCard && Math.random() > 0.7) {
+                    balanceCard.style.transform = `translateY(${Math.sin(Date.now() / 1000) * 2}px)`;
+                }
+            }, 100);
+        }
+
+        function animatePageTransition() {
+            // تأثيرات انتقال الصفحة
+            const pages = document.querySelectorAll('.page.active, .main-content');
+            pages.forEach(page => {
+                page.style.animation = 'none';
+                setTimeout(() => {
+                    page.style.animation = 'slideInLeft 0.4s ease-out';
+                }, 10);
+            });
+        }
+    </script>
+</body>
+</html>
